@@ -1,0 +1,11 @@
+<div class="card mb-4 p-3">
+    <div class="card-body">
+        <h5 class="card-title">Available Stories</h5>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let story of stories">
+                <span>{{story.name}}</span>
+                <span class="badge bg-primary rounded-pill">{{story.points}} pts</span>
+            </li>
+        </ul>
+    </div>
+</div>
