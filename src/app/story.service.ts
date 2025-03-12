@@ -1,4 +1,3 @@
-// frontend/src/app/story.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
@@ -15,7 +14,9 @@ export interface Story {
 export class StoryService {
   private apiUrl = 'http://localhost:3000/api/stories';
   private storiesSubject = new BehaviorSubject<Story[]>([]);
-  selectedStories: Story[] = [];
+  private selectedStoriesSubject = new BehaviorSubject<Story[]>([]); // BehaviorSubject for selected stories
+
+  selectedStories$ = this.selectedStoriesSubject.asObservable();
 
   constructor(private http: HttpClient) {
     this.loadInitialStories();
@@ -32,7 +33,6 @@ export class StoryService {
   }
 
   addStory(story: Story): Observable<Story> {
-    console.log('addStory called with:', story);
     return this.http.post<Story>(this.apiUrl, story).pipe(
       tap((newStory: any) => {
         const currentStories = this.storiesSubject.value;
@@ -41,22 +41,24 @@ export class StoryService {
     );
   }
 
-
-
   clearStories(): Observable<any> {
-    const request = this.http.delete(this.apiUrl);
-    request.subscribe({
-      next: () => {
+    return this.http.delete(this.apiUrl).pipe(
+      tap(() => {
         this.storiesSubject.next([]);
-        this.selectedStories = [];
-      },
-      error: (err) => console.error(err)
-    });
-    return request;
+        this.selectedStoriesSubject.next([]); // Clear selected stories
+      })
+    );
+  }
+
+  get selectedStories(): Story[] {
+    return this.selectedStoriesSubject.value;
+  }
+
+  set selectedStories(stories: Story[]) {
+    this.selectedStoriesSubject.next(stories);
   }
 
   generateSprint(capacity: number, stories: Story[]): Story[] {
-    this.selectedStories = [];
     let bestFit: Story[] = [];
 
     function findBestFit(index: number, currentSet: Story[], currentSum: number) {
@@ -70,8 +72,7 @@ export class StoryService {
     }
 
     findBestFit(0, [], 0);
-    this.selectedStories = bestFit;
-    return this.selectedStories;
+    this.selectedStories = bestFit; // This updates the BehaviorSubject
+    return bestFit;
   }
-
 }

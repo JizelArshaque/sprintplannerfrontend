@@ -3,30 +3,25 @@ import { StoryService, Story } from '../story.service';
 
 @Component({
   selector: 'app-sprint-calculator',
-  templateUrl: './sprint-calculator.component.html', // External HTML file
-  styleUrls: ['./sprint-calculator.component.css']   // External CSS file
+  templateUrl: './sprint-calculator.component.html',
+  styleUrls: ['./sprint-calculator.component.css']
 })
 export class SprintCalculatorComponent {
   capacity = 0;
-  selectedStories: Story[] = [];
 
-  constructor(private storyService: StoryService) { }
+  constructor(private storyService: StoryService) {}
 
   generateSprint() {
     this.storyService.getStories().subscribe(stories => {
-      this.selectedStories = this.storyService.generateSprint(this.capacity, stories);
-      console.log("Selected Stories:", this.selectedStories);
-      console.log("Total Selected Points:", this.selectedStories.reduce((sum, story) => sum + story.points, 0));
+      this.storyService.selectedStories = this.storyService.generateSprint(this.capacity, stories);
     });
   }
 
   clearSelected() {
-    this.selectedStories = [];
+    this.storyService.selectedStories = []; // Clears selected stories dynamically
   }
 
   clearAll() {
-    this.storyService.clearStories().subscribe(() => {
-      this.selectedStories = [];
-    });
+    this.storyService.clearStories().subscribe();
   }
 }
